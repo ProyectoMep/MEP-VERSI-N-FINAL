@@ -1,0 +1,666 @@
+/* Colores de marca */
+:root{
+  --mep-600:#0a4a7a;   /* barra superior */
+  --mep-700:#0c3e67;   /* subnav */
+  --mep-500:#165f9b;   /* botones principales */
+  --mep-500-hover:#124f80;
+}
+
+.bg-mep{ background-color: var(--mep-600); }
+.bg-mep-700{ background-color: var(--mep-700); }
+
+/* Enlaces subnav */
+.nav-link-lite{
+  color:#dfeafb;
+  text-decoration:none;
+}
+.nav-link-lite:hover{ color:#ffffff; text-decoration:underline; }
+
+/* Logo */
+.logo-mep{ display:block; }
+
+/* Hero */
+.hero-wrapper{
+  background:#fff;
+}
+.hero-image{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* Avatar del panel derecho */
+.avatar-illustration{
+  width:140px;
+  height:auto;
+  opacity:.95;
+}
+
+/* Botones marca */
+.btn-mep{
+  background:var(--mep-500);
+  color:#fff;
+  font-weight:600;
+  padding:.75rem 1rem;
+  border-radius:.5rem;
+}
+.btn-mep:hover{ background:var(--mep-500-hover); color:#fff; }
+
+.btn-outline-mep{
+  border:2px solid var(--mep-500);
+  color:var(--mep-500);
+  font-weight:600;
+  padding:.75rem 1rem;
+  border-radius:.5rem;
+  background:#fff;
+}
+.btn-outline-mep:hover{
+  background:var(--mep-500);
+  color:#fff;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 991.98px){
+  .hero-image{ max-height: 380px; }
+}
+/* ===== Registro vertical (1 columna) estilo tarjeta moderna ===== */
+/* Se aplica SOLO en la página que tiene el campo #tipoDocumento */
+:root{
+  --page-bg: var(--page-bg, #f4f6f8);
+  --success: #00A651;           /* verde del botón */
+  --success-hover: #00964a;
+  --ring: #CBEEDB;              /* halo de foco */
+  --ink-700:#212b36;
+  --ink-500:#637381;
+  --line:#dfe3e8;
+}
+
+body{ background: var(--page-bg); }
+
+/* Tarjeta centrada (sin cambiar HTML): usamos el contenedor que ya tienes */
+.container:has(#tipoDocumento){
+  max-width: 960px;                   /* ancho de la tarjeta */
+  margin: 4rem auto 3rem;
+  background: #fff;
+  border-radius: 12px;
+  padding: 2.25rem 2rem 2rem;
+  box-shadow: 0 10px 30px rgba(2,18,44,.08);
+  position: relative;
+}
+
+
+/* Título centrado debajo del avatar */
+.container:has(#tipoDocumento) > h1{
+  margin-top: 2.4rem; /* espacio por el avatar */
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: clamp(1.25rem, 1rem + .9vw, 1.6rem);
+  font-weight: 700;
+  color: var(--ink-700);
+}
+
+/* Form en columna única */
+.container form:has(#tipoDocumento){
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Grupo y etiqueta */
+.form-group{
+  display:flex; flex-direction:column; gap:.45rem;
+}
+.form-group > label{
+  font-weight:700;
+  color: var(--ink-700);
+  font-size:.94rem;
+}
+
+/* Controles (input/select) */
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="tel"],
+.form-group select{
+  height: 42px;                        /* alto consistente tipo Bootstrap */
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: .55rem .8rem;
+  font-size: .98rem;
+  background: #fff;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.form-group input::placeholder{ color: var(--ink-500); }
+
+/* Foco accesible */
+.form-group input:focus,
+.form-group select:focus{
+  outline: 0;
+  border-color: var(--success);
+  box-shadow: 0 0 0 .2rem var(--ring);
+}
+
+/* Botón verde a todo el ancho */
+.form-actions{ margin-top: .25rem; }
+.form-actions button{
+  width: 100%;
+  background: var(--success);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  height: 42px;
+  font-weight: 700;
+  letter-spacing:.2px;
+  cursor: pointer;
+  transition: background .14s ease, transform .02s ease-in;
+}
+.form-actions button:hover{ background: var(--success-hover); }
+.form-actions button:active{ transform: translateY(1px); }
+
+/* Texto inferior */
+.container:has(#tipoDocumento) > p{
+  text-align:center;
+  margin-top: .75rem;
+  color: var(--ink-500);
+}
+.container:has(#tipoDocumento) > p a{
+  color: var(--success);
+  text-decoration: none;
+  font-weight: 700;
+}
+.container:has(#tipoDocumento) > p a:hover{
+  text-decoration: underline;
+}
+
+/* Pequeñas pantallas */
+@media (max-width: 576px){
+  .container:has(#tipoDocumento){
+    margin: 4.5rem 1rem 2rem;
+    padding: 1.5rem 1rem 1rem;
+  }
+  .container:has(#tipoDocumento)::before{
+    width:92px; height:92px; transform: translate(-50%, -55%);
+  }
+}
+
+/* ===== Dashboard layout ===== */
+:root{
+  --sidebar-w: 280px;
+  --accent: #d86624;         /* color botones menú vertical */
+  --accent-hover: #c45b1e;
+}
+
+.avatar-illustration{ width:84px; height:auto; opacity:.95; }
+
+/* Grid dos columnas */
+.dashboard-grid{
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Sidebar */
+.sidebar{
+  border: 0;
+  border-radius: 12px;
+}
+.menu-vertical{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.menu-vertical .menu-item{
+  display: block;
+  text-align: center;
+  padding: 14px 16px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
+  border-radius: 12px;
+  text-decoration: none;
+  box-shadow: 0 6px 16px rgba(216,102,36,.18);
+  transition: transform .04s ease-in, background .15s ease;
+}
+.menu-vertical .menu-item:hover{ background: var(--accent-hover); }
+.menu-vertical .menu-item:active{ transform: translateY(1px); }
+
+/* Main / carrusel */
+.dashboard-main .carousel{ background: #000; }
+.carousel-img{
+  height: 530px;              /* ajusta según gusto */
+  object-fit: cover;
+}
+
+/* Responsivo */
+@media (max-width: 992px){
+  .dashboard-grid{
+    grid-template-columns: 1fr;
+  }
+  .carousel-img{ height: 320px; }
+}
+@media (max-width: 576px){
+  .carousel-img{ height: 240px; }
+}
+
+/* ===== Agendar Cita: estilo "como registro" (sin cambiar HTML) ===== */
+/* Detectamos la página por el campo #localidad */
+:root{
+  --page-bg: var(--page-bg, #f4f6f8);
+  --line: #dfe3e8;
+  --ink-700:#212b36;
+  --ink-500:#637381;
+  --success: #00A651;       /* verde de acción, si no tienes btn-mep aquí */
+  --success-hover:#00964a;
+  --ring:#CBEEDB;
+}
+
+body{ background: var(--page-bg); }
+
+/* Tarjeta centrada usando tu .container existente */
+.container:has(#localidad){
+  max-width: 960px;
+  margin: 4rem auto 3rem;
+  background: #fff;
+  border-radius: 12px;
+  padding: 2.25rem 2rem 2rem;
+  box-shadow: 0 10px 30px rgba(2,18,44,.08);
+  position: relative;
+}
+
+/* “Avatar” superior (cámbialo por /img/calendar.png si lo tienes) */
+.container:has(#localidad)::before{
+  content:"";
+  position:absolute; left:50%; top:0; transform:translate(-50%, -58%);
+  width:110px; height:110px; border-radius:50%;
+  background:#fff url("/img/avatar-user.png") center/65% no-repeat;
+  border:1px solid var(--line);
+  box-shadow:0 6px 20px rgba(2,18,44,.12);
+}
+
+/* Título */
+.container:has(#localidad) > h1{
+  margin-top: 2.4rem;   /* espacio por el avatar */
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: clamp(1.25rem, 1rem + .9vw, 1.6rem);
+  font-weight: 700;
+  color: var(--ink-700);
+}
+
+/* Ambos formularios en columna única */
+.container:has(#localidad) form{
+  display: flex !important;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Etiquetas + grupos */
+.container:has(#localidad) .form-group{ display:flex; flex-direction:column; gap:.45rem; }
+.container:has(#localidad) label{
+  font-weight:700; color:var(--ink-700); font-size:.94rem;
+}
+
+/* Controles */
+.container:has(#localidad) input[type="text"],
+.container:has(#localidad) input[type="email"],
+.container:has(#localidad) input[type="password"],
+.container:has(#localidad) input[type="tel"],
+.container:has(#localidad) input[type="number"],
+.container:has(#localidad) input[type="date"],
+.container:has(#localidad) input[type="time"],
+.container:has(#localidad) select{
+  height: 42px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:.55rem .8rem;
+  font-size:.98rem;
+  background:#fff;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.container:has(#localidad) input::placeholder{ color:var(--ink-500); }
+
+/* Foco accesible */
+.container:has(#localidad) input:focus,
+.container:has(#localidad) select:focus{
+  outline:0; border-color:var(--success);
+  box-shadow:0 0 0 .2rem var(--ring);
+}
+
+/* Separación entre secciones (Step 1 / Step 2) */
+.container:has(#localidad) > div{ margin-top: 1rem; }
+
+/* Botones: GET (Seleccionar) y POST (Continuar) a todo el ancho */
+.container:has(#localidad) button{
+  width: 100%;
+  background: var(--success);
+  color:#fff;
+  border:0; border-radius:8px;
+  height:42px; font-weight:700; letter-spacing:.2px;
+  cursor:pointer;
+  transition: background .14s ease, transform .02s ease-in;
+}
+.container:has(#localidad) button:hover{ background: var(--success-hover); }
+.container:has(#localidad) button:active{ transform: translateY(1px); }
+
+/* Ajustes móviles */
+@media (max-width: 576px){
+  .container:has(#localidad){
+    margin: 4.5rem 1rem 2rem;
+    padding: 1.5rem 1rem 1rem;
+  }
+  .container:has(#localidad)::before{ width:92px; height:92px; transform:translate(-50%, -55%); }
+}
+
+
+/* ===== Mis Citas (mantiene paleta del sitio) ===== */
+:root{
+  --page-bg: var(--page-bg, #f4f6f8);
+  --line: #e5e7eb;
+  --ink-700:#0b2540;
+  --ink-500:#6b7280;
+  --ok-bg:#d1fae5;   --ok-fg:#065f46;   /* Confirmada */
+  --warn-bg:#fef3c7; --warn-fg:#92400e; /* Pendiente  */
+  --err-bg:#fee2e2;  --err-fg:#991b1b;  /* Cancelada  */
+}
+
+.bg-page{ background: var(--page-bg); }
+
+.citas-card{
+  border:0; border-radius: 14px;
+}
+
+.table thead th{ font-weight:700; color:#243b53; }
+.table td, .table th{ vertical-align: middle; }
+.table-hover tbody tr:hover{ background:#f8fafc; }
+.table-responsive{ border-radius: 10px; overflow: hidden; }
+
+/* Badges de estado por atributo (sin tocar backend) */
+.estado-badge{
+  font-weight:700;
+  padding:.4rem .6rem;
+  border-radius: 999px;
+  background:#eef2ff;
+  color: var(--mep-500, #165f9b);
+  border: 1px solid rgba(0,0,0,.04);
+}
+.estado-badge[data-estado="Confirmada"]{ background: var(--ok-bg);   color: var(--ok-fg); }
+.estado-badge[data-estado="Pendiente"]{  background: var(--warn-bg); color: var(--warn-fg); }
+.estado-badge[data-estado="Cancelada"]{  background: var(--err-bg);  color: var(--err-fg); }
+
+/* Botones coherentes con la paleta */
+.btn-success{
+  background:#00A651; border-color:#00A651;
+}
+.btn-success:hover{
+  background:#00964a; border-color:#00964a;
+}
+.btn-outline-primary{
+  color: var(--mep-500, #165f9b); border-color: var(--mep-500, #165f9b);
+}
+.btn-outline-primary:hover{
+  background: var(--mep-500, #165f9b); color:#fff;
+}
+/* ===== Confirmar Cita ===== */
+:root{
+  --page-bg: var(--page-bg, #f4f6f8);
+  --line:#e5e7eb;
+  --ink-700:#0b2540;
+  --ink-500:#6b7280;
+  --ring:#CBEEDB; /* si usas verde de acciones */
+}
+
+.bg-page{ background: var(--page-bg); }
+
+/* Tarjeta central */
+.confirm-card{
+  max-width: 960px;
+  background:#fff;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(2,18,44,.08);
+  border: 0;
+  border-radius: 14px;
+}
+
+/* “Avatar” superior decorativo (opcional: usa /img/calendar.png si existe) */
+.confirm-card::before{
+  content:"";
+  position:absolute; left:50%; top:0; transform:translate(-50%, -58%);
+  width:110px; height:110px; border-radius:50%;
+  background:#fff url("/img/calendar.png") center/60% no-repeat;
+  border:1px solid var(--line);
+  box-shadow:0 6px 20px rgba(2,18,44,.12);
+}
+
+.confirm-card > h2{
+  margin-top: 2.2rem; /* espacio por el avatar */
+  color: var(--ink-700);
+}
+
+/* Resumen como “tarjetitas” en grid responsive, sin tocar tu markup */
+.summary{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(220px,1fr));
+  gap: 12px 16px;
+}
+.summary p{
+  margin:0;
+  background:#f8fafc;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:.75rem .9rem;
+}
+.summary p strong{
+  display:block;
+  font-size:.8rem;
+  color: var(--ink-500);
+  margin-bottom:.15rem;
+}
+.summary p span{
+  font-weight:700;
+  color: var(--ink-700);
+}
+
+/* Botones coherentes con el sitio */
+.btn-success{
+  background:#00A651; border-color:#00A651;
+}
+.btn-success:hover{
+  background:#00964a; border-color:#00964a;
+}
+
+/* Mobile */
+@media (max-width: 576px){
+  .confirm-card{ padding-top: 3.5rem !important; }
+  .confirm-card::before{ width:92px; height:92px; transform:translate(-50%, -55%); }
+  .summary{ grid-template-columns: 1fr; }
+}
+
+/* ===== Reprogramar Cita ===== */
+:root{
+  --page-bg: var(--page-bg, #f4f6f8);
+  --line:#e5e7eb;
+  --ink-700:#0b2540;
+  --ink-500:#6b7280;
+  --ring:#CBEEDB;
+}
+
+.bg-page{ background: var(--page-bg); }
+
+.reprog-card{
+  max-width: 960px;
+  background:#fff;
+  border:0;
+  border-radius:14px;
+  position:relative;
+  box-shadow:0 10px 30px rgba(2,18,44,.08);
+}
+
+/* “Avatar” decorativo arriba (usa /img/calendar.png si lo tienes) */
+.reprog-card::before{
+  content:"";
+  position:absolute; left:50%; top:0; transform:translate(-50%, -58%);
+  width:110px; height:110px; border-radius:50%;
+  background:#fff url("/img/calendar.png") center/60% no-repeat;
+  border:1px solid var(--line);
+  box-shadow:0 6px 20px rgba(2,18,44,.12);
+}
+.reprog-card > h2{ margin-top:2.2rem; color:var(--ink-700); }
+
+/* Resumen */
+.reprog-summary .sum-item{
+  background:#f8fafc;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:.7rem .9rem;
+}
+.reprog-summary .sum-item strong{
+  display:block; font-size:.8rem; color:var(--ink-500); margin-bottom:.2rem;
+}
+.reprog-summary .sum-item span{
+  font-weight:700; color:var(--ink-700);
+}
+
+/* Inputs Bootstrap + foco suave */
+.reprog-card .form-control, .reprog-card .form-select{
+  height:42px; border-radius:8px; border:1px solid var(--line);
+}
+.reprog-card .form-control:focus, .reprog-card .form-select:focus{
+  outline:0; border-color:#00A651; box-shadow:0 0 0 .2rem var(--ring);
+}
+
+/* Botón verde coherente con el sitio */
+.btn-success{ background:#00A651; border-color:#00A651; }
+.btn-success:hover{ background:#00964a; border-color:#00964a; }
+
+/* Mobile */
+@media (max-width: 576px){
+  .reprog-card{ padding-top:3.5rem !important; }
+  .reprog-card::before{ width:92px; height:92px; transform:translate(-50%, -55%); }
+}
+/* ===== Admin Dashboard ===== */
+:root{
+  --sidebar-w: 280px;
+  --line:#e5e7eb;
+  --ink-700:#0b2540;
+}
+
+/* Grid principal */
+.admin-grid{
+  display:grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  gap:24px;
+  align-items:start;
+}
+
+/* Sidebar con acento azul (reutiliza .menu-vertical/.menu-item) */
+.admin-sidebar{
+  border:0; border-radius:12px;
+  /* set de colores específicos para admin */
+  --accent: var(--mep-500, #165f9b);
+  --accent-hover: var(--mep-500-hover, #124f80);
+}
+.admin-sidebar .menu-item{
+  background: var(--accent);
+  box-shadow: 0 6px 16px rgba(22,95,155,.18);
+}
+.admin-sidebar .menu-item:hover{ background: var(--accent-hover); }
+
+/* Tarjetas de estado */
+.stat-card{
+  border:0; border-radius:12px;
+}
+.stat-label{
+  font-size:.8rem; color:#6b7280; font-weight:700; letter-spacing:.2px;
+}
+.stat-value{
+  font-size:1.6rem; font-weight:800; color: var(--ink-700);
+  margin-top:.15rem;
+}
+.stat-icon{ font-size:1.6rem; opacity:.9 }
+
+/* Tabla */
+.table thead th{ font-weight:700; color:#243b53; }
+.table-hover tbody tr:hover{ background:#f8fafc; }
+
+/* Responsivo */
+@media (max-width: 992px){
+  .admin-grid{ grid-template-columns: 1fr; }
+}
+/* ===== Reportes ===== */
+:root{
+  --page-bg: var(--page-bg, #f4f6f8);
+  --line:#e5e7eb;
+  --ink-700:#0b2540;
+  --ink-500:#6b7280;
+}
+
+.bg-page{ background: var(--page-bg); }
+
+/* KPI cards */
+.kpi-card{
+  border:0; border-radius:12px;
+  position:relative;
+  overflow:hidden;
+}
+.kpi-card::before{
+  content:"";
+  position:absolute; inset:0 0 auto 0; height:4px;
+  background: var(--mep-500, #165f9b);
+}
+.kpi-label{
+  font-size:.82rem; color:var(--ink-500); font-weight:700; letter-spacing:.2px;
+}
+.kpi-value{
+  font-size:1.6rem; font-weight:800; color:var(--ink-700);
+  margin-top:.2rem;
+}
+
+/* Tabla */
+.table thead th{ font-weight:700; color:#243b53; }
+.table-hover tbody tr:hover{ background:#f8fafc; }
+
+/* Botones coherentes (si no existían) */
+.btn-mep{
+  background: var(--mep-500, #165f9b);
+  color:#fff; font-weight:700;
+}
+.btn-mep:hover{ background: var(--mep-500-hover, #124f80); color:#fff; }
+
+.btn-outline-primary{
+  color: var(--mep-500, #165f9b); border-color: var(--mep-500, #165f9b);
+}
+.btn-outline-primary:hover{
+  background: var(--mep-500, #165f9b); color:#fff;
+}
+
+/* Canvas altura fija agradable */
+#estadoChart{ min-height: 260px; }
+
+/* Admin: tarjeta y separación básica */
+.admin-card{
+  max-width: 880px;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+}
+
+/* Alineación agradable de los 3 botones */
+.admin-actions .btn{
+  padding: .9rem 1rem;
+  font-weight: 700;
+  border-radius: .6rem;
+}
+
+/* Si no tenías outline-mep definido */
+.btn-outline-mep{
+  border: 2px solid var(--mep-500, #165f9b);
+  color: var(--mep-500, #165f9b);
+  background: #fff;
+  font-weight: 700;
+}
+.btn-outline-mep:hover{
+  background: var(--mep-500, #165f9b);
+  color: #fff;
+}

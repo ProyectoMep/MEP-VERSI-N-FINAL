@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reprogramar Cita</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+<body class="bg-page">
+
+<header class="bg-mep text-white py-2 shadow-sm">
+  <div class="container d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
+      <img th:src="@{/img/mep-logo.png}" height="36" />
+      <h1 class="h6 m-0 fw-semibold">MEP - Matrículas y Educación Pública</h1>
+    </div>
+    <a th:href="@{/tutor/citas}" class="btn btn-light btn-sm">Volver</a>
+  </div>
+</header>
+
+<nav class="bg-mep-700 text-white">
+  <div class="container d-flex gap-4 py-2 small">
+    <a class="nav-link-lite" th:href="@{/faq}">Preguntas Frecuentes</a>
+    <a class="nav-link-lite" th:href="@{/ayuda}">Ayuda</a>
+    <a class="nav-link-lite" th:href="@{/contacto}">Contáctanos</a>
+  </div>
+</nav>
+
+<main class="container my-4">
+  <div class="shadow-sm rounded-3 p-4 p-lg-5 mx-auto">
+
+    <h2 class="h5 text-center mb-4">Reprogramar Cita</h2>
+
+    <!-- RESUMEN COMPLETO -->
+    <div class="row g-3 mb-4">
+
+      <div class="col-md-6">
+        <strong>Institución:</strong>
+        <p th:text="${cita.institucion.nombre}"></p>
+      </div>
+
+      <div class="col-md-6">
+        <strong>Dirección:</strong>
+        <p th:text="${cita.institucion.direccionPrincipal}"></p>
+      </div>
+
+      <div class="col-md-6">
+        <strong>Localidad:</strong>
+        <p th:text="${cita.institucion.localidad}"></p>
+      </div>
+
+      <div class="col-md-6">
+        <strong>Motivo:</strong>
+        <p th:text="${cita.motivo}"></p>
+      </div>
+
+      <div class="col-md-6">
+        <strong>Solicitante:</strong>
+        <p th:text="${cita.nombreAgenda}"></p>
+      </div>
+
+      <div class="col-md-6">
+        <strong>Correo:</strong>
+        <p th:text="${cita.correoAgenda}"></p>
+      </div>
+
+      <div class="col-md-6">
+        <strong>Teléfono:</strong>
+        <p th:text="${cita.telefonoAgenda}"></p>
+      </div>
+
+      <div class="col-md-3">
+        <strong>Fecha actual:</strong>
+        <p th:text="${cita.fechaCita}"></p>
+      </div>
+
+      <div class="col-md-3">
+        <strong>Hora actual:</strong>
+        <p th:text="${cita.horaCita}"></p>
+      </div>
+
+    </div>
+
+
+    <!-- FORMULARIO -->
+    <form th:action="@{|/tutor/citas/${cita.id}/reprogramar|}" method="post" id="reprogForm">
+
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+      <!-- FECHA -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Nueva fecha</label>
+        <input type="date" id="fecha" name="fecha" class="form-control" required>
+        <small class="text-muted">No se permite hoy, fines de semana ni días anteriores.</small>
+      </div>
+
+      <!-- HORA -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Nueva hora</label>
+        <select id="horaSlot" class="form-select" required>
+          <option value="">Seleccione hora</option>
+        </select>
+
+        <input type="hidden" id="hora" name="hora" required>
+      </div>
+
+      <!-- BOTONES -->
+      <div class="row g-2">
+        <div class="col-md-6">
+          <button type="submit" class="btn btn-success w-100">Guardar cambios</button>
+        </div>
+        <div class="col-md-6">
+          <a th:href="@{/tutor/citas}" class="btn btn-outline-secondary w-100">Cancelar</a>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+// FECHA: no hoy, no fines de semana
+(function(){
+    const input = document.getElementById("fecha");
+    const today = new Date();
+    today.setDate(today.getDate() + 1); // mañana mínimo
+
+    function toYMD(d){ return d.toISOString().split('T')[0]; }
+
+    input.min = toYMD(today);
+
+    input.addEventListener("input", () => {
+        const d = new Date(input.value);
+        const day = d.getDay();
+
+        if (day === 0 || day === 6) {
+            input.setCustomValidity("Solo lunes a viernes.");
+            input.value = "";
+        } else {
+            input.setCustomValidity("");
+        }
+    });
+})();
+
+
+// HORAS: 7:00 AM a 4:00 PM cada 30 minutos
+(function(){
+    const select = document.getElementById("horaSlot");
+    const hidden = document.getElementById("hora");
+
+    for (let h = 7; h <= 16; h++) {
+        for (let m = 0; m < 60; m += 30) {
+
+            if (h === 16 && m > 0) continue;
+
+            const hh = String(h).padStart(2,'0');
+            const mm = String(m).padStart(2,'0');
+
+            const ampm = h >= 12 ? "PM" : "AM";
+            let h12 = h % 12;
+            if (h12 === 0) h12 = 12;
+
+            const label = `${h12}:${mm} ${ampm}`;
+            const value = `${hh}:${mm}`;
+
+            const opt = document.createElement("option");
+            opt.value = value;
+            opt.textContent = label;
+            select.appendChild(opt);
+        }
+    }
+
+    select.addEventListener("change", () => {
+        hidden.value = select.value;
+    });
+
+})();
+</script>
+
+</body>
+</html>
