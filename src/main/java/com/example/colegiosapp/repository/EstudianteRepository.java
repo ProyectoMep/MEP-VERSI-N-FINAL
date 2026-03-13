@@ -16,4 +16,6 @@ public interface EstudianteRepository extends JpaRepository<Estudiante, Long> {
 
     // Búsqueda por número de documento (para el filtro en la interfaz)
     List<Estudiante> findByEstadoAndNumeroDocumentoContainingIgnoreCase(String estado, String numeroDocumento);
+    // NUEVO — para listar rechazados
+List<Estudiante> findByEstadoIn(List<String> estados);
 }

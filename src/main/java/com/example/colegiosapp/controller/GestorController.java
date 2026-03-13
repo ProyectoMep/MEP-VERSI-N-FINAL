@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;   // 👈 IMPORTANTE
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -27,24 +27,28 @@ import com.example.colegiosapp.repository.CitaRepository;
 import com.example.colegiosapp.repository.EstudianteRepository;
 import com.example.colegiosapp.repository.InstitucionRepository;
 import com.example.colegiosapp.repository.UsuarioRepository;
+import com.example.colegiosapp.service.EmailService;
 
 @Controller
 @RequestMapping("/gestor")
 public class GestorController {
 
-    private final UsuarioRepository usuarioRepository;
-    private final InstitucionRepository institucionRepository;
-    private final CitaRepository citaRepository;
-    private final EstudianteRepository estudianteRepository;
+    private final UsuarioRepository      usuarioRepository;
+    private final InstitucionRepository  institucionRepository;
+    private final CitaRepository         citaRepository;
+    private final EstudianteRepository   estudianteRepository;
+    private final EmailService           emailService;
 
     public GestorController(UsuarioRepository usuarioRepository,
                             InstitucionRepository institucionRepository,
                             CitaRepository citaRepository,
-                            EstudianteRepository estudianteRepository) {
-        this.usuarioRepository = usuarioRepository;
+                            EstudianteRepository estudianteRepository,
+                            EmailService emailService) {
+        this.usuarioRepository    = usuarioRepository;
         this.institucionRepository = institucionRepository;
-        this.citaRepository = citaRepository;
+        this.citaRepository       = citaRepository;
         this.estudianteRepository = estudianteRepository;
+        this.emailService         = emailService;
     }
 
     // ============================================================
@@ -55,18 +59,17 @@ public class GestorController {
     public String validarPrimerIngreso(Authentication auth) {
 
         Usuario gestor = usuarioRepository.findByCorreo(auth.getName())
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Gestor no encontrado: " + auth.getName()));
 
         if (gestor.getIdInstitucion() == null) {
             return "redirect:/gestor/error-sin-institucion";
         }
 
         Institucion inst = institucionRepository.findById(gestor.getIdInstitucion())
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Institución no encontrada"));
 
         if (inst.getMision() == null || inst.getMision().isBlank()
                 || inst.getVision() == null || inst.getVision().isBlank()) {
-
             return "redirect:/gestor/primer-ingreso";
         }
 
@@ -83,7 +86,6 @@ public class GestorController {
                 .orElseThrow();
 
         model.addAttribute("institucion", inst);
-
         return "gestor/primer_ingreso";
     }
 
@@ -98,7 +100,7 @@ public class GestorController {
     }
 
     // ============================================================
-    // 📅 CITAS PROGRAMADAS (con filtro por fecha)
+    // 📅 CITAS PROGRAMADAS
     // ============================================================
 
     @GetMapping("/citas")
@@ -109,24 +111,23 @@ public class GestorController {
                               Model model) {
 
         Usuario gestor = usuarioRepository.findByCorreo(auth.getName())
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Gestor no encontrado: " + auth.getName()));
 
         Long idInstitucion = gestor.getIdInstitucion();
         if (idInstitucion == null) {
             return "redirect:/gestor/error-sin-institucion";
         }
 
-        List<Cita> citas;
-
-        if (fecha != null) {
-            citas = citaRepository.findByInstitucionIdAndFechaCita(idInstitucion, fecha);
-        } else {
-            citas = citaRepository.findByInstitucionId(idInstitucion);
+        if (!institucionRepository.existsById(idInstitucion)) {
+            return "redirect:/gestor/error-sin-institucion";
         }
+
+        List<Cita> citas = (fecha != null)
+                ? citaRepository.findByInstitucionIdAndFechaCita(idInstitucion, fecha)
+                : citaRepository.findByInstitucionId(idInstitucion);
 
         model.addAttribute("citas", citas);
         model.addAttribute("fechaSeleccionada", fecha);
-
         return "gestor/citas_programadas";
     }
 
@@ -134,11 +135,10 @@ public class GestorController {
     public String marcarNoAsistio(@PathVariable Long id) {
 
         Cita cita = citaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada: " + id));
 
         cita.setEstado("No asistió");
         citaRepository.save(cita);
-
         return "redirect:/gestor/citas";
     }
 
@@ -146,7 +146,7 @@ public class GestorController {
     public String mostrarRegistroEstudiantes(@PathVariable Long id, Model model) {
 
         Cita cita = citaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada: " + id));
 
         model.addAttribute("cita", cita);
         return "gestor/registrar_estudiantes";
@@ -154,20 +154,18 @@ public class GestorController {
 
     @PostMapping("/citas/{id}/asistio")
     public String registrarEstudiantes(@PathVariable Long id,
-                                       @RequestParam("nombres") List<String> nombres,
-                                       @RequestParam("apellidos") List<String> apellidos,
-                                       @RequestParam("tiposDocumento") List<String> tiposDocumento,
-                                       @RequestParam("numerosDocumento") List<String> numerosDocumento,
-                                       @RequestParam("grados") List<String> grados,
-                                       @RequestParam("correos") List<String> correos,
-                                       @RequestParam("telefonos") List<String> telefonos) {
+                                       @RequestParam("nombres")           List<String> nombres,
+                                       @RequestParam("apellidos")          List<String> apellidos,
+                                       @RequestParam("tiposDocumento")     List<String> tiposDocumento,
+                                       @RequestParam("numerosDocumento")   List<String> numerosDocumento,
+                                       @RequestParam("grados")             List<String> grados,
+                                       @RequestParam("correos")            List<String> correos,
+                                       @RequestParam("telefonos")          List<String> telefonos) {
 
         Cita cita = citaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada: " + id));
 
-        int total = nombres.size();
-
-        for (int i = 0; i < total; i++) {
+        for (int i = 0; i < nombres.size(); i++) {
             Estudiante est = new Estudiante();
             est.setNombre(nombres.get(i));
             est.setApellido(apellidos.get(i));
@@ -178,32 +176,29 @@ public class GestorController {
             est.setTelefono(telefonos.get(i));
             est.setEstado("Pendiente");
             est.setCita(cita);
-
             estudianteRepository.save(est);
         }
 
         cita.setEstado("Asistió");
         citaRepository.save(cita);
-
         return "redirect:/gestor/citas";
     }
 
     // ============================================================
-    // 🧑‍🎓 MÓDULO DE ESTUDIANTES (Pendientes / Matriculados)
+    // 🧑‍🎓 MÓDULO DE ESTUDIANTES
     // ============================================================
 
     @GetMapping("/estudiantes")
-    public String listarEstudiantes(@RequestParam(name = "estado", required = false, defaultValue = "Pendiente")
-                                    String estado,
-                                    @RequestParam(name = "filtro", required = false) String filtro,
-                                    @RequestParam(name = "tipoFiltro", required = false, defaultValue = "nombre")
-                                    String tipoFiltro,
-                                    Model model) {
+    public String listarEstudiantes(
+            @RequestParam(name = "estado",      required = false, defaultValue = "Pendiente") String estado,
+            @RequestParam(name = "filtro",      required = false) String filtro,
+            @RequestParam(name = "tipoFiltro",  required = false, defaultValue = "nombre")    String tipoFiltro,
+            @RequestParam(name = "mensaje",     required = false) String mensaje,
+            Model model) {
 
         List<Estudiante> estudiantes;
 
         if (filtro != null && !filtro.isBlank()) {
-
             if ("documento".equalsIgnoreCase(tipoFiltro)) {
                 estudiantes = estudianteRepository
                         .findByEstadoAndNumeroDocumentoContainingIgnoreCase(estado, filtro);
@@ -211,39 +206,68 @@ public class GestorController {
                 estudiantes = estudianteRepository
                         .findByEstadoAndNombreContainingIgnoreCase(estado, filtro);
             }
-
         } else {
             estudiantes = estudianteRepository.findByEstado(estado);
         }
 
-        model.addAttribute("estudiantes", estudiantes);
+        model.addAttribute("estudiantes",        estudiantes);
         model.addAttribute("estadoSeleccionado", estado);
-        model.addAttribute("filtro", filtro);
-        model.addAttribute("tipoFiltro", tipoFiltro);
-
+        model.addAttribute("filtro",             filtro);
+        model.addAttribute("tipoFiltro",         tipoFiltro);
+        model.addAttribute("mensaje",            mensaje);
         return "gestor/estudiantes";
     }
 
+    // ── APROBAR ──
     @PostMapping("/estudiantes/aprobar")
-    public String aprobarEstudiantes(@RequestParam("idsEstudiantes") List<Long> idsEstudiantes) {
+    public String aprobarEstudiantes(
+            @RequestParam("idsEstudiantes") List<Long> idsEstudiantes) {
 
         if (idsEstudiantes != null && !idsEstudiantes.isEmpty()) {
-
             List<Estudiante> seleccionados = estudianteRepository.findAllById(idsEstudiantes);
-
             for (Estudiante est : seleccionados) {
                 est.setEstado("Matriculado");
                 estudianteRepository.save(est);
 
-                // TODO: Enviar correo genérico de aprobación
+                // Enviar correo de aprobación al tutor/padre
+                if (est.getCorreo() != null && !est.getCorreo().isBlank()) {
+                    emailService.enviarAprobacion(
+                            est.getCorreo(),
+                            est.getNombre() + " " + est.getApellido(),
+                            est.getGrado() != null ? est.getGrado() : "asignado"
+                    );
+                }
             }
         }
+        return "redirect:/gestor/estudiantes?estado=Pendiente&mensaje=aprobados";
+    }
 
-        return "redirect:/gestor/estudiantes?estado=Pendiente";
+    // ── RECHAZAR ──
+    @PostMapping("/estudiantes/rechazar")
+    public String rechazarEstudiantes(
+            @RequestParam("idsEstudiantes") List<Long> idsEstudiantes) {
+
+        if (idsEstudiantes != null && !idsEstudiantes.isEmpty()) {
+            List<Estudiante> seleccionados = estudianteRepository.findAllById(idsEstudiantes);
+            for (Estudiante est : seleccionados) {
+                est.setEstado("Rechazado");
+                estudianteRepository.save(est);
+
+                // Enviar correo de rechazo al tutor/padre
+                if (est.getCorreo() != null && !est.getCorreo().isBlank()) {
+                    emailService.enviarRechazo(
+                            est.getCorreo(),
+                            est.getNombre() + " " + est.getApellido(),
+                            est.getGrado() != null ? est.getGrado() : "solicitado"
+                    );
+                }
+            }
+        }
+        return "redirect:/gestor/estudiantes?estado=Pendiente&mensaje=rechazados";
     }
 
     // ============================================================
-    // 📤 CARGA MASIVA DE ESTUDIANTES (solo matriculados)
+    // 📤 CARGA MASIVA DE ESTUDIANTES (Excel)
     // ============================================================
 
     @PostMapping("/estudiantes/cargar")
@@ -257,17 +281,15 @@ public class GestorController {
         int totalCreados = 0;
 
         try (InputStream is = archivo.getInputStream();
-             XSSFWorkbook workbook = new XSSFWorkbook(is)) {   // 👈 usamos XSSFWorkbook (.xlsx)
+             XSSFWorkbook workbook = new XSSFWorkbook(is)) {
 
             Sheet sheet = workbook.getSheetAt(0);
             DataFormatter formatter = new DataFormatter();
 
-            // Fila 0 = encabezados, datos desde la 1
+            // Fila 0 = encabezados, datos desde fila 1
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null) {
-                    continue;
-                }
+                if (row == null) continue;
 
                 String nombre    = formatter.formatCellValue(row.getCell(0)).trim();
                 String apellido  = formatter.formatCellValue(row.getCell(1)).trim();
@@ -277,9 +299,7 @@ public class GestorController {
                 String correo    = formatter.formatCellValue(row.getCell(5)).trim();
                 String telefono  = formatter.formatCellValue(row.getCell(6)).trim();
 
-                if (nombre.isBlank() && numeroDoc.isBlank()) {
-                    continue;
-                }
+                if (nombre.isBlank() && numeroDoc.isBlank()) continue;
 
                 Estudiante est = new Estudiante();
                 est.setNombre(nombre);
@@ -290,13 +310,12 @@ public class GestorController {
                 est.setCorreo(correo);
                 est.setTelefono(telefono);
                 est.setEstado("Matriculado");
-                // est.setCita(null); // carga masiva sin cita
 
                 estudianteRepository.save(est);
                 totalCreados++;
             }
 
-            System.out.println("✅ Estudiantes creados desde Excel: " + totalCreados);
+            System.out.println("✅ Estudiantes cargados desde Excel: " + totalCreados);
 
         } catch (Exception e) {
             System.out.println("❌ Error al procesar el archivo Excel:");
@@ -306,5 +325,4 @@ public class GestorController {
 
         return "redirect:/gestor/estudiantes?estado=Matriculado&carga=ok";
     }
-
 }

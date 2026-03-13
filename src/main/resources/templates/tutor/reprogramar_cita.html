@@ -3,185 +3,279 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reprogramar Cita</title>
+  <title>Reprogramar Cita · MEP</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
-<body class="bg-page">
+<body class="bg-dashboard">
 
-<header class="bg-mep text-white py-2 shadow-sm">
-  <div class="container d-flex align-items-center justify-content-between">
-    <div class="d-flex align-items-center gap-3">
-      <img th:src="@{/img/mep-logo.png}" height="36" />
-      <h1 class="h6 m-0 fw-semibold">MEP - Matrículas y Educación Pública</h1>
-    </div>
-    <a th:href="@{/tutor/citas}" class="btn btn-light btn-sm">Volver</a>
-  </div>
-</header>
-
-<nav class="bg-mep-700 text-white">
-  <div class="container d-flex gap-4 py-2 small">
-    <a class="nav-link-lite" th:href="@{/faq}">Preguntas Frecuentes</a>
-    <a class="nav-link-lite" th:href="@{/ayuda}">Ayuda</a>
-    <a class="nav-link-lite" th:href="@{/contacto}">Contáctanos</a>
-  </div>
-</nav>
-
-<main class="container my-4">
-  <div class="shadow-sm rounded-3 p-4 p-lg-5 mx-auto">
-
-    <h2 class="h5 text-center mb-4">Reprogramar Cita</h2>
-
-    <!-- RESUMEN COMPLETO -->
-    <div class="row g-3 mb-4">
-
-      <div class="col-md-6">
-        <strong>Institución:</strong>
-        <p th:text="${cita.institucion.nombre}"></p>
-      </div>
-
-      <div class="col-md-6">
-        <strong>Dirección:</strong>
-        <p th:text="${cita.institucion.direccionPrincipal}"></p>
-      </div>
-
-      <div class="col-md-6">
-        <strong>Localidad:</strong>
-        <p th:text="${cita.institucion.localidad}"></p>
-      </div>
-
-      <div class="col-md-6">
-        <strong>Motivo:</strong>
-        <p th:text="${cita.motivo}"></p>
-      </div>
-
-      <div class="col-md-6">
-        <strong>Solicitante:</strong>
-        <p th:text="${cita.nombreAgenda}"></p>
-      </div>
-
-      <div class="col-md-6">
-        <strong>Correo:</strong>
-        <p th:text="${cita.correoAgenda}"></p>
-      </div>
-
-      <div class="col-md-6">
-        <strong>Teléfono:</strong>
-        <p th:text="${cita.telefonoAgenda}"></p>
-      </div>
-
-      <div class="col-md-3">
-        <strong>Fecha actual:</strong>
-        <p th:text="${cita.fechaCita}"></p>
-      </div>
-
-      <div class="col-md-3">
-        <strong>Hora actual:</strong>
-        <p th:text="${cita.horaCita}"></p>
-      </div>
-
-    </div>
-
-
-    <!-- FORMULARIO -->
-    <form th:action="@{|/tutor/citas/${cita.id}/reprogramar|}" method="post" id="reprogForm">
-
-      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
-      <!-- FECHA -->
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Nueva fecha</label>
-        <input type="date" id="fecha" name="fecha" class="form-control" required>
-        <small class="text-muted">No se permite hoy, fines de semana ni días anteriores.</small>
-      </div>
-
-      <!-- HORA -->
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Nueva hora</label>
-        <select id="horaSlot" class="form-select" required>
-          <option value="">Seleccione hora</option>
-        </select>
-
-        <input type="hidden" id="hora" name="hora" required>
-      </div>
-
-      <!-- BOTONES -->
-      <div class="row g-2">
-        <div class="col-md-6">
-          <button type="submit" class="btn btn-success w-100">Guardar cambios</button>
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="logo-block" id="logo-block">
+          <img th:src="@{/img/mep-logo.png}" alt="Logo MEP" height="32" class="logo-mep"
+               onerror="document.getElementById('logo-block').style.display='none'"/>
         </div>
-        <div class="col-md-6">
-          <a th:href="@{/tutor/citas}" class="btn btn-outline-secondary w-100">Cancelar</a>
+        <div class="brand-text">
+          <span class="brand-title">Matrículas y Educación Pública</span>
+          <span class="brand-sub">República de Colombia · Sistema en Línea</span>
         </div>
       </div>
+      <div class="header-right">
+        <nav class="header-links">
+          <a class="hlink" th:href="@{/faq}" href="#">Preguntas Frecuentes</a>
+          <a class="hlink" th:href="@{/ayuda}" href="#">Ayuda</a>
+          <a class="hlink" th:href="@{/contacto}" href="#">Contáctanos</a>
+        </nav>
+        <a th:href="@{/tutor/citas}" href="#" class="btn-logout">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Volver a mis citas
+        </a>
+      </div>
+    </div>
+  </header>
 
-    </form>
+  <main class="reprog-main">
+    <div class="reprog-wrapper">
 
-  </div>
-</main>
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb-mep">
+        <a th:href="@{/tutor/dashboard}" href="#">Panel del Tutor</a>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+        <a th:href="@{/tutor/citas}" href="#">Mis Citas</a>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+        <span>Reprogramar Cita</span>
+      </nav>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+      <div class="reprog-grid">
 
-<script>
+        <!-- Columna izquierda: resumen cita actual -->
+        <aside class="reprog-summary">
+          <div class="reprog-summary__header">
+            <div class="reprog-summary__icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+            </div>
+            <span>Cita actual</span>
+          </div>
 
-// FECHA: no hoy, no fines de semana
-(function(){
-    const input = document.getElementById("fecha");
-    const today = new Date();
-    today.setDate(today.getDate() + 1); // mañana mínimo
+          <!-- Fecha y hora actuales destacadas -->
+          <div class="reprog-datetime">
+            <div class="reprog-datetime__item">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <div>
+                <span class="reprog-datetime__label">Fecha actual</span>
+                <span class="reprog-datetime__val" th:text="${cita.fechaCita}">2025-01-01</span>
+              </div>
+            </div>
+            <div class="reprog-datetime__sep"></div>
+            <div class="reprog-datetime__item">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <div>
+                <span class="reprog-datetime__label">Hora actual</span>
+                <span class="reprog-datetime__val" th:text="${cita.horaCita}">08:00</span>
+              </div>
+            </div>
+          </div>
 
-    function toYMD(d){ return d.toISOString().split('T')[0]; }
+          <!-- Info rows -->
+          <div class="reprog-info-rows">
+            <div class="reprog-info-row">
+              <span class="reprog-info-row__label">Institución</span>
+              <span class="reprog-info-row__val" th:text="${cita.institucion.nombre}">Institución</span>
+            </div>
+            <div class="reprog-info-row">
+              <span class="reprog-info-row__label">Dirección</span>
+              <span class="reprog-info-row__val" th:text="${cita.institucion.direccionPrincipal}">Dirección</span>
+            </div>
+            <div class="reprog-info-row">
+              <span class="reprog-info-row__label">Localidad</span>
+              <span class="reprog-info-row__val" th:text="${cita.institucion.localidad}">Localidad</span>
+            </div>
+            <div class="reprog-info-row">
+              <span class="reprog-info-row__label">Motivo</span>
+              <span class="reprog-info-row__val" th:text="${cita.motivo}">Motivo</span>
+            </div>
+            <div class="reprog-info-row">
+              <span class="reprog-info-row__label">Solicitante</span>
+              <span class="reprog-info-row__val" th:text="${cita.nombreAgenda}">Nombre</span>
+            </div>
+            <div class="reprog-info-row">
+              <span class="reprog-info-row__label">Correo</span>
+              <span class="reprog-info-row__val" th:text="${cita.correoAgenda}">correo@ejemplo.com</span>
+            </div>
+            <div class="reprog-info-row">
+              <span class="reprog-info-row__label">Teléfono</span>
+              <span class="reprog-info-row__val" th:text="${cita.telefonoAgenda}">3000000000</span>
+            </div>
+          </div>
 
-    input.min = toYMD(today);
+          <div class="reprog-notice">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            Solo se puede cambiar la fecha y hora. Los demás datos se mantienen.
+          </div>
+        </aside>
 
-    input.addEventListener("input", () => {
-        const d = new Date(input.value);
-        const day = d.getDay();
+        <!-- Columna derecha: formulario -->
+        <div class="reprog-form-card">
+          <div class="reprog-form-card__header">
+            <div class="reprog-form-card__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"/>
+                <path d="M3.51 15a9 9 0 1 0 .49-4.45"/>
+              </svg>
+            </div>
+            <div>
+              <h1 class="reprog-form-card__title">Reprogramar Cita</h1>
+              <p class="reprog-form-card__sub">Elige la nueva fecha y hora para tu cita</p>
+            </div>
+          </div>
 
-        if (day === 0 || day === 6) {
-            input.setCustomValidity("Solo lunes a viernes.");
-            input.value = "";
-        } else {
-            input.setCustomValidity("");
-        }
-    });
-})();
+          <form th:action="@{|/tutor/citas/${cita.id}/reprogramar|}" method="post"
+                id="reprogForm" class="reprog-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
+            <!-- Nueva fecha -->
+            <div class="field-group">
+              <label for="fecha" class="field-label">Nueva fecha</label>
+              <input type="date" id="fecha" name="fecha" class="input-mep" required>
+              <p class="field-hint">Solo días hábiles (lunes a viernes), dentro de los próximos 30 días.</p>
+            </div>
 
-// HORAS: 7:00 AM a 4:00 PM cada 30 minutos
-(function(){
-    const select = document.getElementById("horaSlot");
-    const hidden = document.getElementById("hora");
+            <!-- Nueva hora -->
+            <div class="field-group">
+              <label for="horaSlot" class="field-label">Nueva hora</label>
+              <select id="horaSlot" class="input-mep select-mep" required>
+                <option value="" disabled selected>Seleccione hora</option>
+              </select>
+              <input type="hidden" id="hora" name="hora" required>
+              <p class="field-hint">De 7:00 a.m. a 4:00 p.m., cada 30 minutos.</p>
+            </div>
 
-    for (let h = 7; h <= 16; h++) {
-        for (let m = 0; m < 60; m += 30) {
+            <!-- Botones -->
+            <div class="reprog-actions">
+              <button type="submit" class="btn-primary-mep">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Guardar cambios
+              </button>
+              <a th:href="@{/tutor/citas}" href="#" class="btn-cancel-mep">
+                Cancelar
+              </a>
+            </div>
 
-            if (h === 16 && m > 0) continue;
+          </form>
+        </div>
 
-            const hh = String(h).padStart(2,'0');
-            const mm = String(m).padStart(2,'0');
+      </div>
+    </div>
+  </main>
 
-            const ampm = h >= 12 ? "PM" : "AM";
-            let h12 = h % 12;
-            if (h12 === 0) h12 = 12;
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">MEP · Matrículas y Educación Pública</span>
+      <span class="footer-copy">© 2025 República de Colombia. Todos los derechos reservados.</span>
+      <div class="footer-links">
+        <a href="#">Privacidad</a>
+        <a href="#">Términos</a>
+        <a href="#">Accesibilidad</a>
+      </div>
+    </div>
+  </footer>
 
-            const label = `${h12}:${mm} ${ampm}`;
-            const value = `${hh}:${mm}`;
-
-            const opt = document.createElement("option");
-            opt.value = value;
-            opt.textContent = label;
-            select.appendChild(opt);
-        }
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function toYMD(d) {
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function isWeekend(d) { return d.getDay()===0||d.getDay()===6; }
+    function nextBusinessDay(from) {
+      const d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+      d.setDate(d.getDate()+1);
+      while(isWeekend(d)) d.setDate(d.getDate()+1);
+      return d;
     }
 
-    select.addEventListener("change", () => {
-        hidden.value = select.value;
-    });
+    (function configureDatePicker(){
+      const fechaInput = document.getElementById('fecha');
+      if(!fechaInput) return;
+      const min = nextBusinessDay(new Date());
+      const max = new Date();
+      max.setDate(max.getDate()+30);
+      fechaInput.min = toYMD(min);
+      fechaInput.max = toYMD(max);
+      fechaInput.addEventListener('input', () => {
+        if(!fechaInput.value) return;
+        const d = new Date(fechaInput.value+'T00:00:00');
+        let msg = '';
+        if(isWeekend(d))  msg = 'Solo se puede agendar de lunes a viernes.';
+        else if(d < min)  msg = 'No se puede agendar para hoy ni días anteriores.';
+        else if(d > max)  msg = 'No se puede agendar con más de 30 días de anticipación.';
+        fechaInput.setCustomValidity(msg);
+        if(msg){ fechaInput.reportValidity(); fechaInput.value=''; }
+      });
+    })();
 
-})();
-</script>
-
+    (function configureTimeSlots(){
+      const slotSel = document.getElementById('horaSlot');
+      const hidden  = document.getElementById('hora');
+      if(!slotSel||!hidden) return;
+      for(let h=7;h<=16;h++){
+        for(let m=0;m<60;m+=30){
+          if(h===16&&m>0) break;
+          const hh=String(h).padStart(2,'0'), mm=String(m).padStart(2,'0');
+          const isPM=h>=12; let h12=h%12; if(h12===0)h12=12;
+          const opt=document.createElement('option');
+          opt.value=`${hh}:${mm}`;
+          opt.textContent=`${h12}:${mm} ${isPM?'PM':'AM'}`;
+          slotSel.appendChild(opt);
+        }
+      }
+      slotSel.addEventListener('change',()=>{ hidden.value=slotSel.value||''; });
+      const form=document.getElementById('reprogForm');
+      if(form){
+        form.addEventListener('submit',(e)=>{
+          if(!slotSel.value){ e.preventDefault(); slotSel.reportValidity(); return; }
+          hidden.value=slotSel.value;
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

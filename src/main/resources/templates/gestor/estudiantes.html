@@ -1,220 +1,645 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gestor - Estudiantes</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estudiantes · MEP</title>
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
 
-    <!-- CSS Global -->
-    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+  <style>
+    .est-main { max-width:1100px; margin:0 auto; padding:32px 24px 64px; }
+
+    /* ── Alertas ── */
+    .est-alert {
+      display:flex; align-items:center; gap:10px;
+      padding:12px 18px; border-radius:var(--radius-md);
+      font-family:'DM Sans',sans-serif; font-size:13.5px; font-weight:500;
+      margin-bottom:20px;
+    }
+    .est-alert--success { background:#f0fdf4; border:1.5px solid #bbf7d0; color:#15803d; }
+    .est-alert--danger  { background:#fef2f2; border:1.5px solid #fecaca; color:#dc2626; }
+
+    /* ── Tabs ── */
+    .est-tabs {
+      display:flex; gap:4px; background:var(--gray-200);
+      border-radius:12px; padding:4px; width:fit-content; margin-bottom:24px;
+    }
+    .est-tab {
+      font-family:'Sora',sans-serif; font-size:13px; font-weight:700;
+      padding:9px 22px; border-radius:9px; text-decoration:none; color:var(--gray-600);
+      transition:background .15s,color .15s,box-shadow .15s;
+      display:flex; align-items:center; gap:7px;
+    }
+    .est-tab:hover { color:var(--blue-900); }
+    .est-tab--active { background:#fff; color:var(--blue-900); box-shadow:0 1px 6px rgba(13,59,142,.12); }
+    .est-tab__dot { width:7px; height:7px; border-radius:50%; }
+    .est-tab__dot--pending  { background:#f59e0b; }
+    .est-tab__dot--enrolled { background:#22c55e; }
+    .est-tab__dot--rejected { background:#ef4444; }
+
+    /* ── Filter card ── */
+    .est-filter-card {
+      background:#fff; border:1.5px solid var(--gray-200);
+      border-radius:var(--radius-lg); box-shadow:var(--shadow-card);
+      overflow:hidden; margin-bottom:20px;
+    }
+    .est-filter-stripe { height:4px; background:linear-gradient(90deg,var(--blue-900),var(--orange-600)); }
+
+    .est-count-badge {
+      display:inline-flex; align-items:center; gap:6px;
+      background:var(--blue-50); border:1px solid var(--blue-100); color:var(--blue-900);
+      font-family:'Sora',sans-serif; font-size:12px; font-weight:700;
+      padding:6px 14px; border-radius:20px; flex-shrink:0; white-space:nowrap;
+    }
+
+    /* ── Upload card ── */
+    .est-upload-card {
+      background:#fff; border:1.5px solid var(--gray-200);
+      border-radius:var(--radius-lg); box-shadow:var(--shadow-card);
+      padding:16px 24px; margin-bottom:20px;
+      display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    }
+    .est-upload-card__icon {
+      width:34px; height:34px; border-radius:var(--radius-md);
+      background:#f0fdf4; color:#16a34a;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .est-upload-card__label {
+      font-family:'Sora',sans-serif; font-size:13px; font-weight:700;
+      color:var(--blue-900); flex-shrink:0;
+    }
+    .btn-upload-excel {
+      display:inline-flex; align-items:center; gap:7px;
+      background:#16a34a; color:#fff;
+      font-family:'Sora',sans-serif; font-size:12px; font-weight:700;
+      padding:9px 18px; border-radius:10px; border:none; cursor:pointer;
+      flex-shrink:0; transition:background .15s;
+    }
+    .btn-upload-excel:hover { background:#15803d; }
+
+    /* ── Tabla ── */
+    .est-table-card {
+      background:#fff; border:1.5px solid var(--gray-200);
+      border-radius:var(--radius-lg); box-shadow:var(--shadow-card); overflow:hidden;
+    }
+    .est-table-card__header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px 24px; border-bottom:1.5px solid var(--gray-200);
+    }
+    .est-table-card__header-left {
+      display:flex; align-items:center; gap:8px;
+      font-family:'Sora',sans-serif; font-size:13px; font-weight:700; color:var(--blue-900);
+    }
+    .est-table-wrap { overflow-x:auto; }
+    .est-table { width:100%; border-collapse:collapse; font-family:'DM Sans',sans-serif; font-size:13px; }
+    .est-table thead tr { background:var(--blue-900); }
+    .est-table thead th {
+      font-family:'Sora',sans-serif; font-size:11px; font-weight:700;
+      color:rgba(255,255,255,.85); text-transform:uppercase; letter-spacing:.05em;
+      padding:12px 14px; white-space:nowrap; border:none;
+    }
+    .est-table thead th.th-check { width:44px; text-align:center; }
+    .est-table tbody tr { border-bottom:1px solid var(--gray-200); transition:background .12s; }
+    .est-table tbody tr:last-child { border-bottom:none; }
+    .est-table tbody tr:hover { background:var(--gray-50); }
+    .est-table tbody td { padding:12px 14px; color:var(--gray-800); vertical-align:middle; }
+    .est-table tbody tr:nth-child(even) td { background:#f8faff; }
+    .est-table tbody tr:nth-child(even):hover td { background:var(--gray-50); }
+    .td-nombre { font-weight:600; color:var(--blue-900); font-family:'Sora',sans-serif; font-size:13px; }
+    .td-doc    { font-size:12px; color:var(--gray-600); }
+    .td-grado  {
+      display:inline-flex; align-items:center;
+      background:var(--blue-50); color:var(--blue-900);
+      font-family:'Sora',sans-serif; font-size:11px; font-weight:700;
+      padding:3px 10px; border-radius:20px;
+    }
+    .est-check { width:17px; height:17px; cursor:pointer; accent-color:var(--blue-900); }
+
+    /* ── Botones fila ── */
+    .btn-aprobar-individual {
+      display:inline-flex; align-items:center; gap:4px;
+      background:#f0fdf4; color:#16a34a;
+      font-family:'Sora',sans-serif; font-size:11px; font-weight:700;
+      padding:5px 10px; border-radius:7px; border:1.5px solid #bbf7d0;
+      cursor:pointer; white-space:nowrap; transition:background .15s;
+    }
+    .btn-aprobar-individual:hover { background:#dcfce7; }
+    .btn-rechazar-individual {
+      display:inline-flex; align-items:center; gap:4px;
+      background:#fff; color:#dc2626;
+      font-family:'Sora',sans-serif; font-size:11px; font-weight:700;
+      padding:5px 10px; border-radius:7px; border:1.5px solid #fca5a5;
+      cursor:pointer; white-space:nowrap; transition:background .15s;
+    }
+    .btn-rechazar-individual:hover { background:#fef2f2; }
+
+    /* ── Barra lote ── */
+    .est-select-bar {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 24px; background:var(--blue-50);
+      border-top:1.5px solid var(--blue-100); flex-wrap:wrap; gap:12px;
+    }
+    .est-select-bar__info { font-family:'DM Sans',sans-serif; font-size:13px; color:var(--blue-900); }
+    .est-select-bar__btns { display:flex; gap:8px; align-items:center; }
+    .btn-aprobar {
+      display:inline-flex; align-items:center; gap:7px;
+      background:var(--blue-900); color:#fff;
+      font-family:'Sora',sans-serif; font-size:12px; font-weight:700;
+      padding:9px 20px; border-radius:10px; border:none; cursor:pointer; transition:background .15s;
+    }
+    .btn-aprobar:hover { background:var(--blue-800); }
+    .btn-rechazar-lote {
+      display:inline-flex; align-items:center; gap:7px;
+      background:#fff; color:#dc2626;
+      font-family:'Sora',sans-serif; font-size:12px; font-weight:700;
+      padding:9px 20px; border-radius:10px; border:1.5px solid #fca5a5;
+      cursor:pointer; transition:background .15s,border-color .15s;
+    }
+    .btn-rechazar-lote:hover { background:#fef2f2; border-color:#dc2626; }
+
+    /* ── Empty ── */
+    .est-empty {
+      background:#fff; border:1.5px solid var(--gray-200);
+      border-radius:var(--radius-lg); box-shadow:var(--shadow-card);
+      padding:56px 24px; text-align:center;
+    }
+    .est-empty__icon {
+      width:60px; height:60px; border-radius:50%;
+      background:var(--blue-50); color:var(--blue-900);
+      display:flex; align-items:center; justify-content:center; margin:0 auto 16px;
+    }
+    .est-empty__title { font-family:'Sora',sans-serif; font-size:16px; font-weight:700; color:var(--blue-900); margin:0 0 6px; }
+    .est-empty__sub   { font-family:'DM Sans',sans-serif; font-size:13.5px; color:var(--gray-600); margin:0; }
+  </style>
 </head>
+<body class="bg-dashboard">
 
-<body class="bg-page">
-
-<!-- HEADER -->
-<header class="bg-mep text-white py-2 shadow-sm">
-    <div class="container d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center gap-3">
-            <img th:src="@{/img/mep-logo.png}" alt="MEP" height="38">
-            <h1 class="h6 m-0 fw-semibold">Gestor - Estudiantes</h1>
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="logo-block" id="logo-block">
+          <img th:src="@{/img/mep-logo.png}" alt="Logo MEP" height="32" class="logo-mep"
+               onerror="document.getElementById('logo-block').style.display='none'"/>
         </div>
-        <a th:href="@{/gestor/dashboard}" class="btn btn-warning btn-sm fw-semibold">Volver</a>
+        <div class="brand-text">
+          <span class="brand-title">Matrículas y Educación Pública</span>
+          <span class="brand-sub">República de Colombia · Gestión Institucional</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <nav class="header-links">
+          <a class="hlink" th:href="@{/faq}"      href="#">Preguntas Frecuentes</a>
+          <a class="hlink" th:href="@{/ayuda}"    href="#">Ayuda</a>
+          <a class="hlink" th:href="@{/contacto}" href="#">Contáctanos</a>
+        </nav>
+        <a th:href="@{/gestor/dashboard}" href="#" class="btn-logout">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Volver al panel
+        </a>
+      </div>
     </div>
-</header>
+  </header>
 
-<!-- CONTENIDO -->
-<main class="container my-4">
+  <main class="est-main">
 
-    <h3 class="text-center mb-4">Gestión de Estudiantes</h3>
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb-mep">
+      <a th:href="@{/gestor/dashboard}" href="#">Panel del Gestor</a>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+      <span>Estudiantes</span>
+    </nav>
 
-    <!-- TABS ESTADO -->
-    <div class="d-flex justify-content-center mb-3">
-        <div class="btn-group" role="group">
-            <a th:href="@{/gestor/estudiantes(estado='Pendiente')}"
-               class="btn"
-               th:classappend="${estadoSeleccionado} == 'Pendiente' ? ' btn-mep' : ' btn-outline-mep'">
-                Pendientes
-            </a>
-            <a th:href="@{/gestor/estudiantes(estado='Matriculado')}"
-               class="btn"
-               th:classappend="${estadoSeleccionado} == 'Matriculado' ? ' btn-mep' : ' btn-outline-mep'">
-                Matriculados
-            </a>
-        </div>
+    <!-- ── Alertas ── -->
+    <div th:if="${mensaje == 'aprobados'}" class="est-alert est-alert--success">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      Estudiantes aprobados. Se envió correo de notificación a cada uno.
+    </div>
+    <div th:if="${mensaje == 'rechazados'}" class="est-alert est-alert--danger">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+      Estudiantes rechazados. Se envió correo de notificación a cada uno.
     </div>
 
-    <!-- FILTRO DE BÚSQUEDA -->
-    <form th:action="@{/gestor/estudiantes}" method="get"
-          class="row g-2 align-items-end mb-3">
-        <input type="hidden" name="estado" th:value="${estadoSeleccionado}" />
+    <!-- ── Tabs ── -->
+    <div class="est-tabs">
+      <a th:href="@{/gestor/estudiantes(estado='Pendiente')}" href="#"
+         th:classappend="${estadoSeleccionado == 'Pendiente'} ? ' est-tab--active' : ''"
+         class="est-tab">
+        <span class="est-tab__dot est-tab__dot--pending"></span>Pendientes
+      </a>
+      <a th:href="@{/gestor/estudiantes(estado='Matriculado')}" href="#"
+         th:classappend="${estadoSeleccionado == 'Matriculado'} ? ' est-tab--active' : ''"
+         class="est-tab">
+        <span class="est-tab__dot est-tab__dot--enrolled"></span>Matriculados
+      </a>
+      <a th:href="@{/gestor/estudiantes(estado='Rechazado')}" href="#"
+         th:classappend="${estadoSeleccionado == 'Rechazado'} ? ' est-tab--active' : ''"
+         class="est-tab">
+        <span class="est-tab__dot est-tab__dot--rejected"></span>Rechazados
+      </a>
+    </div>
 
-        <div class="col-md-5">
-            <label class="form-label mb-1" for="filtro">Buscar estudiante</label>
-            <input type="text"
-                   id="filtro"
-                   name="filtro"
-                   class="form-control"
-                   placeholder="Nombre o número de documento"
-                   th:value="${filtro}"/>
+    <!-- ══════════════════════════════════════════════════════════
+         FILTRO — Todo inline, sin clases CSS, para ganar a Bootstrap
+         ══════════════════════════════════════════════════════════ -->
+    <div class="est-filter-card">
+      <div class="est-filter-stripe"></div>
+
+      <form th:action="@{/gestor/estudiantes}" method="get"
+            style="display:flex;flex-direction:row;align-items:flex-end;gap:12px;flex-wrap:nowrap;padding:18px 24px 20px;">
+
+        <!-- HIDDEN: position:absolute para sacarlo del flujo flex sin que ocupe espacio -->
+        <input type="hidden" name="estado" th:value="${estadoSeleccionado}"
+               style="position:absolute;visibility:hidden;width:0;height:0;padding:0;margin:0;border:0;" />
+
+        <!-- Campo texto -->
+        <div style="flex:2;min-width:0;display:flex;flex-direction:column;gap:4px;">
+          <label for="filtro"
+                 style="font-family:'Sora',sans-serif;font-size:11px;font-weight:700;
+                        color:var(--blue-900);text-transform:uppercase;letter-spacing:.05em;
+                        margin:0;">
+            Buscar estudiante
+          </label>
+          <input type="text" id="filtro" name="filtro"
+                 class="input-mep"
+                 placeholder="Escribe nombre o número de documento"
+                 th:value="${filtro}"
+                 style="margin:0;" />
         </div>
 
-        <div class="col-md-3">
-            <label class="form-label mb-1" for="tipoFiltro">Buscar por</label>
-            <select id="tipoFiltro" name="tipoFiltro" class="form-select">
-                <option value="nombre"
-                        th:selected="${tipoFiltro} == 'nombre'">Nombre</option>
-                <option value="documento"
-                        th:selected="${tipoFiltro} == 'documento'">Número de documento</option>
-            </select>
+        <!-- Select tipo -->
+        <div style="flex:1.2;min-width:0;display:flex;flex-direction:column;gap:4px;">
+          <label for="tipoFiltro"
+                 style="font-family:'Sora',sans-serif;font-size:11px;font-weight:700;
+                        color:var(--blue-900);text-transform:uppercase;letter-spacing:.05em;
+                        margin:0;">
+            Buscar por
+          </label>
+          <select id="tipoFiltro" name="tipoFiltro"
+                  class="input-mep select-mep"
+                  style="margin:0;">
+            <option value="nombre"    th:selected="${tipoFiltro == 'nombre'}">Nombre</option>
+            <option value="documento" th:selected="${tipoFiltro == 'documento'}">Número de documento</option>
+          </select>
         </div>
 
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100 mt-3 mt-md-0">
-                Buscar
-            </button>
+        <!-- Acciones -->
+        <div style="display:flex;gap:10px;align-items:center;flex-shrink:0;">
+          <button type="submit" class="btn-primary-mep">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            Buscar
+          </button>
+          <a th:href="@{/gestor/estudiantes(estado=${estadoSeleccionado})}"
+             href="#" class="btn-cancel-mep">Limpiar</a>
+          <span class="est-count-badge">
+            <strong th:text="${#lists.size(estudiantes)}">0</strong>
+            <span th:text="${estadoSeleccionado == 'Pendiente'} ? 'pendiente(s)'
+                         : (estadoSeleccionado == 'Rechazado'  ? 'rechazado(s)'
+                                                               : 'matriculado(s)')"></span>
+          </span>
         </div>
 
-        <div class="col-md-2 text-md-end mt-3 mt-md-0">
-            <p class="mb-0 small">
-                <strong th:text="${#lists.size(estudiantes)}">0</strong>
-                <span>estudiante(s)</span>
-                <span th:if="${estadoSeleccionado == 'Pendiente'}"> pendientes</span>
-                <span th:if="${estadoSeleccionado == 'Matriculado'}"> matriculados</span>
-            </p>
-        </div>
-    </form>
+      </form>
+    </div>
 
-    <!-- ===================== PENDIENTES ===================== -->
+    <!-- ══════════════ PENDIENTES ══════════════ -->
     <section th:if="${estadoSeleccionado == 'Pendiente'}">
 
-        <!-- SIN ESTUDIANTES PENDIENTES -->
-        <div th:if="${#lists.isEmpty(estudiantes)}" class="alert alert-info text-center">
-            No hay estudiantes pendientes registrados.
+      <div th:if="${#lists.isEmpty(estudiantes)}" class="est-empty">
+        <div class="est-empty__icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+          </svg>
         </div>
+        <p class="est-empty__title">Sin estudiantes pendientes</p>
+        <p class="est-empty__sub">No hay estudiantes en estado Pendiente por el momento.</p>
+      </div>
 
-        <!-- LISTA PENDIENTES -->
-        <div th:if="${!#lists.isEmpty(estudiantes)}" class="table-responsive">
+      <div th:if="${!#lists.isEmpty(estudiantes)}">
+        <form id="formPendientes" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"
+                 style="position:absolute;visibility:hidden;width:0;height:0;padding:0;margin:0;border:0;" />
 
-            <form th:action="@{/gestor/estudiantes/aprobar}"
-                  method="post">
+          <div class="est-table-card">
+            <div class="est-table-card__header">
+              <div class="est-table-card__header-left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                </svg>
+                Estudiantes pendientes de aprobación
+              </div>
+              <span class="reportes-total-badge">
+                Total: <strong th:text="${#lists.size(estudiantes)}">0</strong>
+              </span>
+            </div>
 
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-                <table class="table table-bordered table-striped align-middle">
-                    <thead class="table-mep text-white">
-                        <tr>
-                            <th class="text-center" style="width: 40px;">Sel.</th>
-                            <th>Nombre</th>
-                            <th>Documento</th>
-                            <th>Grado</th>
-                            <th>Correo</th>
-                            <th>Teléfono</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="e : ${estudiantes}">
-                            <td class="text-center">
-                                <input type="checkbox"
-                                       name="idsEstudiantes"
-                                       th:value="${e.id}" />
-                            </td>
-                            <td th:text="${e.nombre + ' ' + e.apellido}"></td>
-                            <td th:text="${e.tipoDocumento + ' ' + e.numeroDocumento}"></td>
-                            <td th:text="${e.grado}"></td>
-                            <td th:text="${e.correo}"></td>
-                            <td th:text="${e.telefono}"></td>
-                            <td>
-                                <span class="badge bg-warning text-dark"
-                                      th:text="${e.estado}">Pendiente</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="d-flex justify-content-between align-items-center mt-2">
-                    <small class="text-muted">
-                        Selecciona uno o varios estudiantes para aprobarlos y matricularlos.
-                    </small>
-                    <button type="submit" class="btn btn-success">
-                        Aprobar seleccionados
-                    </button>
-                </div>
-            </form>
-        </div>
-    </section>
-
-    <!-- ===================== MATRICULADOS ===================== -->
-    <section th:if="${estadoSeleccionado == 'Matriculado'}">
-
-        <!-- Barra superior: info + botón de carga Excel -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
-            <small class="text-muted">
-                Lista de estudiantes matriculados. Puedes buscar por nombre o documento usando el buscador superior.
-            </small>
-
-            <!-- FORMULARIO CARGA MASIVA EXCEL -->
-            <form th:action="@{/gestor/estudiantes/cargar}"
-                  method="post"
-                  enctype="multipart/form-data"
-                  class="d-flex align-items-center gap-2">
-
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-                <input type="file"
-                       name="archivo"
-                       accept=".xlsx,.xls"
-                       class="form-control form-control-sm"
-                       required />
-
-                <button type="submit" class="btn btn-sm btn-primary">
-                    Cargar estudiantes (Excel)
-                </button>
-            </form>
-        </div>
-
-        <!-- SIN MATRICULADOS -->
-        <div th:if="${#lists.isEmpty(estudiantes)}" class="alert alert-info text-center">
-            No hay estudiantes matriculados registrados.
-        </div>
-
-        <!-- TABLA MATRICULADOS -->
-        <div th:if="${!#lists.isEmpty(estudiantes)}" class="table-responsive">
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-mep text-white">
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Documento</th>
-                        <th>Grado</th>
-                        <th>Correo</th>
-                        <th>Teléfono</th>
-                        <th>Estado</th>
-                    </tr>
+            <div class="est-table-wrap">
+              <table class="est-table">
+                <thead>
+                  <tr>
+                    <th class="th-check">
+                      <input type="checkbox" class="est-check" id="selectAll" title="Seleccionar todos"/>
+                    </th>
+                    <th>Nombre</th>
+                    <th>Documento</th>
+                    <th>Grado</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="e : ${estudiantes}">
-                        <td th:text="${e.nombre + ' ' + e.apellido}"></td>
-                        <td th:text="${e.tipoDocumento + ' ' + e.numeroDocumento}"></td>
-                        <td th:text="${e.grado}"></td>
-                        <td th:text="${e.correo}"></td>
-                        <td th:text="${e.telefono}"></td>
-                        <td>
-                            <span class="badge bg-success" th:text="${e.estado}">Matriculado</span>
-                        </td>
-                    </tr>
+                  <tr th:each="e : ${estudiantes}">
+                    <td style="text-align:center;">
+                      <input type="checkbox" name="idsEstudiantes"
+                             class="est-check row-check" th:value="${e.id}"/>
+                    </td>
+                    <td><span class="td-nombre" th:text="${e.nombre + ' ' + e.apellido}"></span></td>
+                    <td><span class="td-doc"    th:text="${e.tipoDocumento + ' · ' + e.numeroDocumento}"></span></td>
+                    <td><span class="td-grado"  th:text="${e.grado}"></span></td>
+                    <td><span style="font-size:12.5px;color:var(--gray-600);" th:text="${e.correo}"></span></td>
+                    <td><span style="font-size:12.5px;" th:text="${e.telefono}"></span></td>
+                    <td><span class="estado-badge" data-estado="PENDIENTE ASISTIR">Pendiente</span></td>
+                    <td>
+                      <div style="display:flex;gap:6px;align-items:center;">
+                        <button type="button" class="btn-aprobar-individual" th:attr="data-id=${e.id}">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                               stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                          Aprobar
+                        </button>
+                        <button type="button" class="btn-rechazar-individual" th:attr="data-id=${e.id}">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                               stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6"  y1="6" x2="18" y2="18"/>
+                          </svg>
+                          Rechazar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
-            </table>
-        </div>
+              </table>
+            </div>
+
+            <!-- Barra lote -->
+            <div class="est-select-bar">
+              <span class="est-select-bar__info">
+                Selecciona uno o varios estudiantes para aprobar o rechazar en lote.
+              </span>
+              <div class="est-select-bar__btns">
+                <button type="button" id="btnAprobarLote" class="btn-aprobar">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Aprobar seleccionados
+                </button>
+                <button type="button" id="btnRechazarLote" class="btn-rechazar-lote">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6"  y1="6" x2="18" y2="18"/>
+                  </svg>
+                  Rechazar seleccionados
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
     </section>
 
-</main>
+    <!-- ══════════════ MATRICULADOS ══════════════ -->
+    <section th:if="${estadoSeleccionado == 'Matriculado'}">
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+      <div class="est-upload-card">
+        <div class="est-upload-card__icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <span class="est-upload-card__label">Carga masiva desde Excel</span>
+        <form th:action="@{/gestor/estudiantes/cargar}" method="post"
+              enctype="multipart/form-data"
+              style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap;">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"
+                 style="position:absolute;visibility:hidden;width:0;height:0;padding:0;margin:0;border:0;" />
+          <input type="file" name="archivo" accept=".xlsx,.xls"
+                 class="input-mep" style="flex:1;min-width:180px;" required />
+          <button type="submit" class="btn-upload-excel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Cargar estudiantes
+          </button>
+        </form>
+      </div>
 
+      <div th:if="${#lists.isEmpty(estudiantes)}" class="est-empty">
+        <div class="est-empty__icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <p class="est-empty__title">Sin estudiantes matriculados</p>
+        <p class="est-empty__sub">Aún no hay estudiantes matriculados. Puedes cargarlos desde un archivo Excel.</p>
+      </div>
+
+      <div th:if="${!#lists.isEmpty(estudiantes)}" class="est-table-card">
+        <div class="est-table-card__header">
+          <div class="est-table-card__header-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Estudiantes matriculados
+          </div>
+          <span class="reportes-total-badge">
+            Total: <strong th:text="${#lists.size(estudiantes)}">0</strong>
+          </span>
+        </div>
+        <div class="est-table-wrap">
+          <table class="est-table">
+            <thead>
+              <tr>
+                <th>Nombre</th><th>Documento</th><th>Grado</th>
+                <th>Correo</th><th>Teléfono</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="e : ${estudiantes}">
+                <td><span class="td-nombre" th:text="${e.nombre + ' ' + e.apellido}"></span></td>
+                <td><span class="td-doc"    th:text="${e.tipoDocumento + ' · ' + e.numeroDocumento}"></span></td>
+                <td><span class="td-grado"  th:text="${e.grado}"></span></td>
+                <td><span style="font-size:12.5px;color:var(--gray-600);" th:text="${e.correo}"></span></td>
+                <td><span style="font-size:12.5px;" th:text="${e.telefono}"></span></td>
+                <td><span class="estado-badge" data-estado="CONFIRMADA">Matriculado</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ RECHAZADOS ══════════════ -->
+    <section th:if="${estadoSeleccionado == 'Rechazado'}">
+
+      <div th:if="${#lists.isEmpty(estudiantes)}" class="est-empty">
+        <div class="est-empty__icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/>
+            <line x1="9"  y1="9" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <p class="est-empty__title">Sin estudiantes rechazados</p>
+        <p class="est-empty__sub">No hay estudiantes con estado Rechazado.</p>
+      </div>
+
+      <div th:if="${!#lists.isEmpty(estudiantes)}" class="est-table-card">
+        <div class="est-table-card__header">
+          <div class="est-table-card__header-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9"  x2="9"  y2="15"/>
+              <line x1="9"  y1="9"  x2="15" y2="15"/>
+            </svg>
+            Estudiantes rechazados
+          </div>
+          <span class="reportes-total-badge">
+            Total: <strong th:text="${#lists.size(estudiantes)}">0</strong>
+          </span>
+        </div>
+        <div class="est-table-wrap">
+          <table class="est-table">
+            <thead>
+              <tr>
+                <th>Nombre</th><th>Documento</th><th>Grado</th>
+                <th>Correo</th><th>Teléfono</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="e : ${estudiantes}">
+                <td><span class="td-nombre" th:text="${e.nombre + ' ' + e.apellido}"></span></td>
+                <td><span class="td-doc"    th:text="${e.tipoDocumento + ' · ' + e.numeroDocumento}"></span></td>
+                <td><span class="td-grado"  th:text="${e.grado}"></span></td>
+                <td><span style="font-size:12.5px;color:var(--gray-600);" th:text="${e.correo}"></span></td>
+                <td><span style="font-size:12.5px;" th:text="${e.telefono}"></span></td>
+                <td><span class="estado-badge" data-estado="CANCELADA">Rechazado</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">MEP · Matrículas y Educación Pública</span>
+      <span class="footer-copy">© 2025 República de Colombia. Todos los derechos reservados.</span>
+      <div class="footer-links">
+        <a href="#">Privacidad</a><a href="#">Términos</a><a href="#">Accesibilidad</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ── Select all ──
+    const selectAll = document.getElementById('selectAll');
+    if (selectAll) {
+      selectAll.addEventListener('change', function() {
+        document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
+      });
+    }
+
+    const form = document.getElementById('formPendientes');
+
+    // ── Individuales ──
+    document.querySelectorAll('.btn-aprobar-individual').forEach(btn => {
+      btn.addEventListener('click', function() { submitConIds('/gestor/estudiantes/aprobar', [this.dataset.id]); });
+    });
+    document.querySelectorAll('.btn-rechazar-individual').forEach(btn => {
+      btn.addEventListener('click', function() { submitConIds('/gestor/estudiantes/rechazar', [this.dataset.id]); });
+    });
+
+    // ── Lote ──
+    document.getElementById('btnAprobarLote')?.addEventListener('click', () => {
+      const ids = getCheckedIds();
+      if (!ids.length) { alert('Selecciona al menos un estudiante.'); return; }
+      submitConIds('/gestor/estudiantes/aprobar', ids);
+    });
+    document.getElementById('btnRechazarLote')?.addEventListener('click', () => {
+      const ids = getCheckedIds();
+      if (!ids.length) { alert('Selecciona al menos un estudiante.'); return; }
+      submitConIds('/gestor/estudiantes/rechazar', ids);
+    });
+
+    function getCheckedIds() {
+      return [...document.querySelectorAll('.row-check:checked')].map(cb => cb.value);
+    }
+
+    function submitConIds(action, ids) {
+      if (!form) return;
+      form.querySelectorAll('input[data-dynamic]').forEach(i => i.remove());
+      ids.forEach(id => {
+        const input = document.createElement('input');
+        input.type  = 'hidden';
+        input.name  = 'idsEstudiantes';
+        input.value = id;
+        input.dataset.dynamic = 'true';
+        form.appendChild(input);
+      });
+      form.action = action;
+      form.submit();
+    }
+  </script>
 </body>
 </html>

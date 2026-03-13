@@ -25,6 +25,7 @@ com\example\colegiosapp\report\ReportStrategy.class
 com\example\colegiosapp\entity\Rol.class
 com\example\colegiosapp\entity\Usuario.class
 com\example\colegiosapp\entity\Estudiante.class
+com\example\colegiosapp\service\EmailService.class
 com\example\colegiosapp\config\PasswordConfig.class
 com\example\colegiosapp\service\ColegiosApiService$ColegioDTO.class
 com\example\colegiosapp\service\ColegiosApiService.class

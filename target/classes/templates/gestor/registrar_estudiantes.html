@@ -1,142 +1,350 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Registrar Estudiantes</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registrar Estudiantes · MEP</title>
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
 
-    <!-- CSS global -->
-    <link rel="stylesheet" th:href="@{/css/styles.css}" />
-</head>
-<body class="bg-page">
-
-<!-- HEADER -->
-<header class="bg-mep text-white py-2 shadow-sm">
-    <div class="container d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center gap-3">
-            <img th:src="@{/img/mep-logo.png}" alt="MEP" height="36" />
-            <h1 class="h6 m-0 fw-semibold">Registro de estudiantes</h1>
-        </div>
-        <a th:href="@{/gestor/citas}" class="btn btn-light btn-sm">Volver a citas</a>
-    </div>
-</header>
-
-<!-- CONTENIDO -->
-<main class="container my-4">
-    <div class="card shadow-sm p-4">
-
-        <h4 class="mb-3">Cita seleccionada</h4>
-
-        <!-- Datos de la cita -->
-        <div class="mb-3">
-            <p><strong>Institución:</strong>
-                <span th:text="${cita.institucion.nombre}">Nombre colegio</span>
-            </p>
-            <p><strong>Fecha y hora:</strong>
-                <span th:text="${cita.fechaCita}">2025-01-01</span>
-                -
-                <span th:text="${cita.horaCita}">08:00</span>
-            </p>
-            <p><strong>Nombre quien programa:</strong>
-                <span th:text="${cita.nombreAgenda}">Nombre tutor</span>
-            </p>
-            <p><strong>Cantidad de estudiantes:</strong>
-                <span th:text="${cita.cantidadCitas}">1</span>
-            </p>
-        </div>
-
-        <hr/>
-
-        <h5 class="mb-3">Registrar datos de los estudiantes</h5>
-        <p class="text-muted">
-            Completa la información de cada estudiante que asistió a la cita.
-        </p>
-
-        <form th:action="@{'/gestor/citas/' + ${cita.id} + '/asistio'}" method="post">
-
-            <!-- CSRF -->
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
-            <div class="table-responsive">
-                <table class="table table-bordered align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>#</th>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
-                            <th>Tipo documento</th>
-                            <th>Número documento</th>
-                            <th>Grado</th>
-                            <th>Correo</th>
-                            <th>Teléfono</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-estudiantes"
-                           th:attr="data-cantidad=${cita.cantidadCitas}">
-                        <!-- Filas generadas por JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="mt-3 d-flex gap-2">
-                <button type="submit" class="btn btn-success">
-                    Guardar registro
-                </button>
-                <a th:href="@{/gestor/citas}" class="btn btn-outline-secondary">
-                    Cancelar
-                </a>
-            </div>
-        </form>
-    </div>
-</main>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Script para generar filas según cantidad de estudiantes -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const tbody = document.getElementById('tbody-estudiantes');
-    if (!tbody) return;
-
-    const cantidad = parseInt(tbody.dataset.cantidad || '0', 10);
-
-    const grados = [
-        'Primero', 'Segundo', 'Tercero', 'Cuarto', 'Quinto',
-        'Sexto', 'Séptimo', 'Octavo', 'Noveno', 'Décimo', 'Undécimo'
-    ];
-
-    const tiposDoc = ['RC', 'TI', 'CC', 'CE'];
-
-    for (let i = 0; i < cantidad; i++) {
-        const tr = document.createElement('tr');
-
-        tr.innerHTML = `
-            <td>${i + 1}</td>
-            <td><input type="text" name="nombres" class="form-control" required></td>
-            <td><input type="text" name="apellidos" class="form-control" required></td>
-            <td>
-                <select name="tiposDocumento" class="form-select" required>
-                    ${tiposDoc.map(td => `<option value="${td}">${td}</option>`).join('')}
-                </select>
-            </td>
-            <td><input type="text" name="numerosDocumento" class="form-control" required></td>
-            <td>
-                <select name="grados" class="form-select" required>
-                    ${grados.map(g => `<option value="${g}">${g}</option>`).join('')}
-                </select>
-            </td>
-            <td><input type="email" name="correos" class="form-control" required></td>
-            <td><input type="text" name="telefonos" class="form-control" required></td>
-        `;
-
-        tbody.appendChild(tr);
+  <style>
+    .reg-est-main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
     }
-});
-</script>
 
+    /* ── Resumen de cita ── */
+    .cita-resumen-card {
+      background: #fff;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .cita-resumen-card__stripe {
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue-900), var(--orange-600));
+    }
+    .cita-resumen-card__body {
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .cita-resumen-item {}
+    .cita-resumen-item__label {
+      font-family: 'Sora', sans-serif;
+      font-size: 10.5px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: var(--gray-400); margin-bottom: 4px;
+    }
+    .cita-resumen-item__value {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 500;
+      color: var(--blue-900);
+    }
+    .cita-resumen-item__value--orange {
+      color: var(--orange-600);
+      font-family: 'Sora', sans-serif; font-weight: 700;
+    }
+
+    /* ── Tabla de registro ── */
+    .reg-table-card {
+      background: #fff;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+    .reg-table-card__header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1.5px solid var(--gray-200);
+    }
+    .reg-table-card__header-left {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700;
+      color: var(--blue-900);
+    }
+    .reg-table-wrap { overflow-x: auto; }
+
+    .reg-table {
+      width: 100%; border-collapse: collapse;
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+    }
+    .reg-table thead tr { background: var(--blue-900); }
+    .reg-table thead th {
+      font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700;
+      color: rgba(255,255,255,.85); text-transform: uppercase;
+      letter-spacing: .05em; padding: 12px 12px;
+      white-space: nowrap; border: none;
+    }
+    .reg-table thead th.th-num { width: 40px; text-align: center; }
+    .reg-table tbody tr { border-bottom: 1px solid var(--gray-200); }
+    .reg-table tbody tr:last-child { border-bottom: none; }
+    .reg-table tbody tr:nth-child(even) td { background: #f8faff; }
+    .reg-table tbody td { padding: 10px 12px; vertical-align: middle; }
+    .reg-table tbody td.td-num {
+      text-align: center;
+      font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 700;
+      color: var(--gray-400);
+    }
+
+    /* Inputs dentro de la tabla */
+    .reg-input {
+      width: 100%; min-width: 110px;
+      height: 36px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 0 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+      color: var(--gray-800);
+      background: #fff;
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+    .reg-input:focus {
+      border-color: var(--blue-700);
+      box-shadow: 0 0 0 3px rgba(13,59,142,.08);
+    }
+    .reg-select {
+      width: 100%; min-width: 90px;
+      height: 36px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 0 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+      color: var(--gray-800); background: #fff;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+    .reg-select:focus {
+      border-color: var(--blue-700);
+      box-shadow: 0 0 0 3px rgba(13,59,142,.08);
+    }
+
+    /* ── Footer de acciones ── */
+    .reg-actions-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px;
+      background: var(--gray-50);
+      border-top: 1.5px solid var(--gray-200);
+      flex-wrap: wrap; gap: 12px;
+    }
+    .reg-actions-bar__info {
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+      color: var(--gray-600);
+    }
+    .reg-actions-bar__btns {
+      display: flex; gap: 10px; align-items: center;
+    }
+    .btn-guardar {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: #16a34a; color: #fff;
+      font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700;
+      padding: 10px 22px; border-radius: 10px;
+      border: none; cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-guardar:hover { background: #15803d; }
+  </style>
+</head>
+<body class="bg-dashboard">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="logo-block" id="logo-block">
+          <img th:src="@{/img/mep-logo.png}" alt="Logo MEP" height="32" class="logo-mep"
+               onerror="document.getElementById('logo-block').style.display='none'"/>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Matrículas y Educación Pública</span>
+          <span class="brand-sub">República de Colombia · Gestión Institucional</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <nav class="header-links">
+          <a class="hlink" th:href="@{/faq}"      href="#">Preguntas Frecuentes</a>
+          <a class="hlink" th:href="@{/ayuda}"    href="#">Ayuda</a>
+          <a class="hlink" th:href="@{/contacto}" href="#">Contáctanos</a>
+        </nav>
+        <a th:href="@{/gestor/citas}" href="#" class="btn-logout">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Volver a citas
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="reg-est-main">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb-mep">
+      <a th:href="@{/gestor/dashboard}" href="#">Panel del Gestor</a>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+      <a th:href="@{/gestor/citas}" href="#">Citas Programadas</a>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+      <span>Registrar Estudiantes</span>
+    </nav>
+
+    <!-- ── Resumen de la cita ── -->
+    <div class="cita-resumen-card">
+      <div class="cita-resumen-card__stripe"></div>
+      <div class="cita-resumen-card__body">
+
+        <div class="cita-resumen-item">
+          <div class="cita-resumen-item__label">Institución</div>
+          <div class="cita-resumen-item__value"
+               th:text="${cita.institucion.nombre}">Nombre colegio</div>
+        </div>
+
+        <div class="cita-resumen-item">
+          <div class="cita-resumen-item__label">Fecha</div>
+          <div class="cita-resumen-item__value"
+               th:text="${cita.fechaCita != null ? #temporals.format(cita.fechaCita,'dd/MM/yyyy') : '-'}">
+          </div>
+        </div>
+
+        <div class="cita-resumen-item">
+          <div class="cita-resumen-item__label">Hora</div>
+          <div class="cita-resumen-item__value--orange cita-resumen-item__value"
+               th:text="${cita.horaCita != null ? #temporals.format(cita.horaCita,'HH:mm') : '-'}">
+          </div>
+        </div>
+
+        <div class="cita-resumen-item">
+          <div class="cita-resumen-item__label">Nombre quien programa</div>
+          <div class="cita-resumen-item__value" th:text="${cita.nombreAgenda}">Nombre tutor</div>
+        </div>
+
+        <div class="cita-resumen-item">
+          <div class="cita-resumen-item__label">Estudiantes a registrar</div>
+          <div class="cita-resumen-item__value--orange cita-resumen-item__value"
+               th:text="${cita.cantidadCitas}">1</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Formulario de registro ── -->
+    <form th:action="@{'/gestor/citas/' + ${cita.id} + '/asistio'}" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+      <div class="reg-table-card">
+        <div class="reg-table-card__header">
+          <div class="reg-table-card__header-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+            </svg>
+            Datos de los estudiantes
+          </div>
+          <span class="reportes-total-badge">
+            <span th:text="${cita.cantidadCitas}">0</span> estudiante(s)
+          </span>
+        </div>
+
+        <div class="reg-table-wrap">
+          <table class="reg-table">
+            <thead>
+              <tr>
+                <th class="th-num">#</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Tipo doc.</th>
+                <th>Nº Documento</th>
+                <th>Grado</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-estudiantes"
+                   th:attr="data-cantidad=${cita.cantidadCitas}">
+              <!-- Filas generadas por JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="reg-actions-bar">
+          <span class="reg-actions-bar__info">
+            Completa los datos de cada estudiante que asistió a la cita antes de guardar.
+          </span>
+          <div class="reg-actions-bar__btns">
+            <a th:href="@{/gestor/citas}" href="#" class="btn-cancel-mep">Cancelar</a>
+            <button type="submit" class="btn-guardar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Guardar registro
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </form>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">MEP · Matrículas y Educación Pública</span>
+      <span class="footer-copy">© 2025 República de Colombia. Todos los derechos reservados.</span>
+      <div class="footer-links">
+        <a href="#">Privacidad</a><a href="#">Términos</a><a href="#">Accesibilidad</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const tbody = document.getElementById('tbody-estudiantes');
+      if (!tbody) return;
+
+      const cantidad = parseInt(tbody.dataset.cantidad || '0', 10);
+
+      const grados   = ['Primero','Segundo','Tercero','Cuarto','Quinto',
+                        'Sexto','Séptimo','Octavo','Noveno','Décimo','Undécimo'];
+      const tiposDoc = ['RC','TI','CC','CE'];
+
+      const gradoOpts   = grados.map(g   => `<option value="${g}">${g}</option>`).join('');
+      const tipoDocOpts = tiposDoc.map(t => `<option value="${t}">${t}</option>`).join('');
+
+      for (let i = 0; i < cantidad; i++) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="td-num">${i + 1}</td>
+          <td><input type="text"  name="nombres"          class="reg-input" placeholder="Nombre"     required></td>
+          <td><input type="text"  name="apellidos"         class="reg-input" placeholder="Apellido"   required></td>
+          <td><select             name="tiposDocumento"    class="reg-select" required>${tipoDocOpts}</select></td>
+          <td><input type="text"  name="numerosDocumento"  class="reg-input" placeholder="Documento"  required></td>
+          <td><select             name="grados"            class="reg-select" required>${gradoOpts}</select></td>
+          <td><input type="email" name="correos"           class="reg-input" placeholder="correo@..." required></td>
+          <td><input type="text"  name="telefonos"         class="reg-input" placeholder="Teléfono"   required></td>
+        `;
+        tbody.appendChild(tr);
+      }
+    });
+  </script>
 </body>
 </html>
